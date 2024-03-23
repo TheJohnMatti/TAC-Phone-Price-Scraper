@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./~/Desktop/webScraper/Lib/site-packages",
+        "./~/Desktop/webScraper/Lib/site-packages"
+    ]
+}
