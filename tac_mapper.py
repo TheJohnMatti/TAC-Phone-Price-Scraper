@@ -4,8 +4,10 @@ import requests
 import json
 
 
-def main():
-    return
+## Methods for mapping TAC code to common phone name to be used in search query for scrapers.
+
+
+# Make api request to alpha.imeicheck.com with generated IMEI
 
 def process_tac_code(code):
     if len(code) != 8:
@@ -18,6 +20,9 @@ def process_tac_code(code):
         return "-2"
     return(site_json)
 
+# Generates a fake IMEI using checksum algorithm. This is necessary since the API being used takes in a whole IMEI,
+# not just a TAC. Six "1"s are appended, and the final digit (checksum) is calculated using algorithm
+
 def generate_check_sum(code: str):
     digitReplacements = {"0": 0, "1": 2, "2": 4, "3": 6, "4": 8, "5": 1, "6": 3, "7": 5, "8": 7, "9": 9}
     checksum = 0
@@ -29,6 +34,3 @@ def generate_check_sum(code: str):
     checksum = 10-(checksum%10)
     return code + str(checksum)
 
-
-if __name__ == "__main__":
-    main()
