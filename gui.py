@@ -13,8 +13,6 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1500, 800)
-        MainWindow.setMinimumSize(1500, 800)
-        MainWindow.setMaximumSize(1500, 800)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
@@ -22,12 +20,27 @@ class Ui_MainWindow(object):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.pressed.connect(self.start_scrape_thread)
         self.textInput = QtWidgets.QLineEdit(MainWindow)
-        self.textInput.setGeometry(QtCore.QRect(10, 10, 260, 31))
+        self.textInput.setGeometry(QtCore.QRect(10, 10, 260, 50))
         self.textInput.setPlaceholderText("Enter TAC code...")
-        self.textInput.setValidator(QtGui.QIntValidator())
+        self.textInput.setValidator(QtGui.QIntValidator(0, 99999999))
+        self.brandLabel = QtWidgets.QLabel(self.centralwidget)
+        self.brandLabel.setText("Brand: ")
+        self.nameLabel = QtWidgets.QLabel(self.centralwidget)
+        self.nameLabel.setText("Name: ")
+        self.modelLabel = QtWidgets.QLabel(self.centralwidget)
+        self.modelLabel.setText("Model: ")
         self.table = table_widget.Ui_Form()
-        self.table.setupUi(MainWindow)
+        self.table.setupUi(self.centralwidget)
         self.table.toggle_sorting(False)
+        self.tableLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        x = QtWidgets.QHBoxLayout(self.centralwidget)
+        x.addWidget(self.textInput)
+        x.addWidget(self.pushButton)
+        self.tableLayout.addLayout(x)
+        self.tableLayout.addWidget(self.brandLabel)
+        self.tableLayout.addWidget(self.nameLabel)
+        self.tableLayout.addWidget(self.modelLabel)
+        self.tableLayout.addWidget(self.table.get_table())
         self.products = []
         self.spinner = pyqtspinner.WaitingSpinner(MainWindow)
 
@@ -68,6 +81,9 @@ class Ui_MainWindow(object):
         self.pushButton.setEnabled(True)
         error = self.worker.error
         if error == 0:
+            self.brandLabel.setText("Brand: " + self.worker.brand)
+            self.nameLabel.setText("Name: " + self.worker.name)
+            self.modelLabel.setText("Model: " + self.worker.model)
             self.table.update_table(self.worker.products)
             self.table.toggle_sorting(True)
         elif error == 1:
@@ -80,17 +96,29 @@ class Ui_MainWindow(object):
     def start_playwright_install_thread(self):
         self.spinner.start()
         self.pushButton.setEnabled(False)
+        self.playwrightInstallLabel = QtWidgets.QLabel(MainWindow)
+        self.playwrightInstallLabel.setGeometry(QtCore.QRect(MainWindow.width()//2-300, MainWindow.height()//2+25, 600, 50))
+        self.playwrightInstallLabel.setAlignment(QtCore.Qt.AlignHCenter)
+        self.labelTimer = QtCore.QTimer(MainWindow)
+        self.labelTimer.setInterval(3000)
+        self.labelTimer.timeout.connect(self.display_playwright_install_label)
+        self.labelTimer.start()
         self.playwrightInstallThread = QtCore.QThread()
         self.playwrightInstallWorker = PlaywrightInstallWorker()
         self.playwrightInstallWorker.moveToThread(self.playwrightInstallThread)
         self.playwrightInstallThread.started.connect(self.playwrightInstallWorker.run)
-        self.playwrightInstallWorker.finished.connect(self.playwrightInstallThread.quit)
-        self.playwrightInstallWorker.finished.connect(self.spinner.stop)
-        self.playwrightInstallWorker.finished.connect(self.enable_push_button)
+        self.playwrightInstallWorker.finished.connect(self.end_playwright_install_thread)
         self.playwrightInstallThread.start()
 
-    def enable_push_button(self):
+    def end_playwright_install_thread(self):
+        self.playwrightInstallThread.quit()
+        self.spinner.stop()
         self.pushButton.setEnabled(True)
+        self.labelTimer.stop()
+        self.playwrightInstallLabel.clear()
+
+    def display_playwright_install_label(self):
+        self.playwrightInstallLabel.setText("Installing Playwright browsers on your device...")
 
 
 class CustomDialog(QtWidgets.QDialog):
@@ -117,6 +145,9 @@ class ScraperWorker(QtCore.QObject):
         super().__init__()
         self.text = text
         self.products = []
+        self.brand = ""
+        self.name = ""
+        self.model = ""
         self.error = 0
 
     finished = QtCore.pyqtSignal()
@@ -150,6 +181,9 @@ class ScraperWorker(QtCore.QObject):
                 self.scraper_helper(res, self.page)
 
     def scraper_helper(self, doc, page):
+        self.brand = doc['object']['brand']
+        self.name = doc['object']['name']
+        self.model = doc['object']['model']
         query = self.produce_search_query(doc)
         # ...
         self.products += amazon_scraper.run(query, page)
