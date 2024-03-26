@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from playwright.sync_api import sync_playwright
-from selectolax.parser import HTMLParser
+import os
 import table_widget
 import tac_mapper
 import process
@@ -41,6 +41,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.start_playwright_install_thread()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -54,15 +55,15 @@ class Ui_MainWindow(object):
         self.table.delete_table()
         self.table.toggle_sorting(False)
         self.products = []
-        self.thread = QtCore.QThread()
+        self.scrapeThread = QtCore.QThread()
         self.worker = ScraperWorker(self.textInput.text())
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.end_scrape_thred)
-        self.thread.start()
+        self.worker.moveToThread(self.scrapeThread)
+        self.scrapeThread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.scrapeThread.quit)
+        self.worker.finished.connect(self.end_scrape_thread)
+        self.scrapeThread.start()
 
-    def end_scrape_thred(self):
+    def end_scrape_thread(self):
         self.spinner.stop()
         self.pushButton.setEnabled(True)
         error = self.worker.error
@@ -75,6 +76,22 @@ class Ui_MainWindow(object):
         elif error == 2:
             dlg = CustomDialog("The TAC entered does not correspond to a known phone model!")
             dlg.exec_()
+
+    def start_playwright_install_thread(self):
+        self.spinner.start()
+        self.pushButton.setEnabled(False)
+        self.playwrightInstallThread = QtCore.QThread()
+        self.playwrightInstallWorker = PlaywrightInstallWorker()
+        self.playwrightInstallWorker.moveToThread(self.playwrightInstallThread)
+        self.playwrightInstallThread.started.connect(self.playwrightInstallWorker.run)
+        self.playwrightInstallWorker.finished.connect(self.playwrightInstallThread.quit)
+        self.playwrightInstallWorker.finished.connect(self.spinner.stop)
+        self.playwrightInstallWorker.finished.connect(self.enable_push_button)
+        self.playwrightInstallThread.start()
+
+    def enable_push_button(self):
+        self.pushButton.setEnabled(True)
+
 
 class CustomDialog(QtWidgets.QDialog):
     def __init__(self, str):
@@ -94,10 +111,11 @@ class CustomDialog(QtWidgets.QDialog):
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
 
+
 class ScraperWorker(QtCore.QObject):
     def __init__(self, text):
-        self.text = text
         super().__init__()
+        self.text = text
         self.products = []
         self.error = 0
 
@@ -121,10 +139,11 @@ class ScraperWorker(QtCore.QObject):
 
     def process_tac_code_helper(self):
         # set loading text
+        if (len(self.text) != 8):
+            self.error = 1
+            return
         res = tac_mapper.process_tac_code(self.text)
         match res:
-            case "-1":
-                self.error = 1
             case "-2":
                 self.error = 2
             case _:
@@ -144,12 +163,25 @@ class ScraperWorker(QtCore.QObject):
         name: str = doc['object']['name']
         self.query_words: list = name.split()
         for i in self.query_words:
-            query += i+"+"
+            query += i + "+"
         return query[:-1]
+
+
+class PlaywrightInstallWorker(QtCore.QObject):
+
+    def __init__(self):
+        super().__init__()
+
+    finished = QtCore.pyqtSignal()
+
+    def run(self):
+        os.system("py -m playwright install")
+        self.finished.emit()
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()

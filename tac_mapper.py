@@ -10,8 +10,6 @@ import json
 # Make api request to alpha.imeicheck.com with generated IMEI
 
 def process_tac_code(code):
-    if len(code) != 8:
-        return "-1"
     imei = generate_check_sum(code+"111111")
     imei_json = requests.api.get("https://alpha.imeicheck.com/api/modelBrandName?imei=" + imei + "&format=json").text
     soup = bs(imei_json, "html.parser")
