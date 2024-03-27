@@ -3,9 +3,7 @@ from selectolax.parser import HTMLParser
 from bs4 import BeautifulSoup as bs
 import product
 
-## Scraper specialized for amazon
-
-## REDO
+## Scraper specialized for Amazon
 
 # Obtain array of products and find properties within
 

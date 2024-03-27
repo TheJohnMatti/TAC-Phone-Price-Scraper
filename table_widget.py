@@ -66,7 +66,7 @@ class Ui_Form(object):
         item = self.tableWidget.horizontalHeaderItem(1)
         item.setText(_translate("Form", "Title"))
         item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("Form", "Min. Price"))
+        item.setText(_translate("Form", "Min. Price (CAD)"))
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("Form", "Rating"))
         item = self.tableWidget.horizontalHeaderItem(4)

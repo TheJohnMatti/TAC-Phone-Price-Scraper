@@ -6,6 +6,7 @@ import tac_mapper
 import process
 import amazon_scraper
 import ebay_scraper
+import walmart_scraper
 import pyqtspinner
 
 
@@ -43,6 +44,10 @@ class Ui_MainWindow(object):
         self.tableLayout.addWidget(self.table.get_table())
         self.products = []
         self.spinner = pyqtspinner.WaitingSpinner(MainWindow)
+        self.loadingLabel = QtWidgets.QLabel(self.centralwidget)
+        self.loadingLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.loadingLabel.setGeometry(0, 0, MainWindow.width(), 25)
+        self.loadingLabel.setVisible(False)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -65,6 +70,11 @@ class Ui_MainWindow(object):
     def start_scrape_thread(self):
         self.spinner.start()
         self.pushButton.setEnabled(False)
+        self.tableLayout.addWidget(self.loadingLabel)
+        self.loadingLabel.setVisible(True)
+        self.brandLabel.setText("Brand: ")
+        self.nameLabel.setText("Name: ")
+        self.modelLabel.setText("Model: ")
         self.table.delete_table()
         self.table.toggle_sorting(False)
         self.products = []
@@ -74,11 +84,14 @@ class Ui_MainWindow(object):
         self.scrapeThread.started.connect(self.worker.run)
         self.worker.finished.connect(self.scrapeThread.quit)
         self.worker.finished.connect(self.end_scrape_thread)
+        self.worker.processChanged.connect(self.loadingLabel.setText)
         self.scrapeThread.start()
 
     def end_scrape_thread(self):
         self.spinner.stop()
         self.pushButton.setEnabled(True)
+        self.tableLayout.removeWidget(self.loadingLabel)
+        self.loadingLabel.setVisible(False)
         error = self.worker.error
         if error == 0:
             self.brandLabel.setText("Brand: " + self.worker.brand)
@@ -96,13 +109,9 @@ class Ui_MainWindow(object):
     def start_playwright_install_thread(self):
         self.spinner.start()
         self.pushButton.setEnabled(False)
-        self.playwrightInstallLabel = QtWidgets.QLabel(MainWindow)
-        self.playwrightInstallLabel.setGeometry(QtCore.QRect(MainWindow.width()//2-300, MainWindow.height()//2+25, 600, 50))
-        self.playwrightInstallLabel.setAlignment(QtCore.Qt.AlignHCenter)
-        self.labelTimer = QtCore.QTimer(MainWindow)
-        self.labelTimer.setInterval(5000)
-        self.labelTimer.timeout.connect(self.display_playwright_install_label)
-        self.labelTimer.start()
+        self.tableLayout.addWidget(self.loadingLabel)
+        self.loadingLabel.setVisible(True)
+        self.loadingLabel.setText("Installing Playwright browsers on your device...")
         self.playwrightInstallThread = QtCore.QThread()
         self.playwrightInstallWorker = PlaywrightInstallWorker()
         self.playwrightInstallWorker.moveToThread(self.playwrightInstallThread)
@@ -114,12 +123,8 @@ class Ui_MainWindow(object):
         self.playwrightInstallThread.quit()
         self.spinner.stop()
         self.pushButton.setEnabled(True)
-        self.labelTimer.stop()
-        self.playwrightInstallLabel.clear()
-
-    def display_playwright_install_label(self):
-        self.playwrightInstallLabel.setText("Installing Playwright browsers on your device...")
-
+        self.loadingLabel.clear()
+        self.tableLayout.removeWidget(self.loadingLabel)
 
 class CustomDialog(QtWidgets.QDialog):
     def __init__(self, str):
@@ -146,21 +151,25 @@ class ScraperWorker(QtCore.QObject):
         self.text = text
         self.products = []
         self.brand = ""
+        self.task = ""
         self.name = ""
         self.model = ""
         self.error = 0
 
+    processChanged = QtCore.pyqtSignal(str)
     finished = QtCore.pyqtSignal()
 
     def run(self):
+        self.processChanged.emit("Processing TAC...")
         self.initialize_playwright()
         self.process_tac_code_helper()
         self.close_playwright()
+        self.processChanged.emit("")
         self.finished.emit()
 
     def initialize_playwright(self):
         self.pw = sync_playwright().start()
-        self.browser = self.pw.chromium.launch()
+        self.browser = self.pw.firefox.launch()
         self.page = self.browser.new_page()
 
     def close_playwright(self):
@@ -170,7 +179,7 @@ class ScraperWorker(QtCore.QObject):
 
     def process_tac_code_helper(self):
         # set loading text
-        if (len(self.text) != 8):
+        if len(self.text) != 8:
             self.error = 1
             return
         res = tac_mapper.process_tac_code(self.text)
@@ -185,10 +194,12 @@ class ScraperWorker(QtCore.QObject):
         self.name = doc['object']['name']
         self.model = doc['object']['model']
         query = self.produce_search_query(doc)
-        # ...
+        self.processChanged.emit("Scraping Amazon...")
         self.products += amazon_scraper.run(query, page)
-        # ...
+        self.processChanged.emit("Scraping eBay...")
         self.products += ebay_scraper.run(query, page)
+        self.processChanged.emit("Scraping Walmart...")
+        self.products += walmart_scraper.run(query, page)
         self.products = process.process_data(self.products, self.query_words)
         return
 
