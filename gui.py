@@ -100,7 +100,7 @@ class Ui_MainWindow(object):
         self.playwrightInstallLabel.setGeometry(QtCore.QRect(MainWindow.width()//2-300, MainWindow.height()//2+25, 600, 50))
         self.playwrightInstallLabel.setAlignment(QtCore.Qt.AlignHCenter)
         self.labelTimer = QtCore.QTimer(MainWindow)
-        self.labelTimer.setInterval(3000)
+        self.labelTimer.setInterval(5000)
         self.labelTimer.timeout.connect(self.display_playwright_install_label)
         self.labelTimer.start()
         self.playwrightInstallThread = QtCore.QThread()
