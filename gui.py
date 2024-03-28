@@ -7,6 +7,7 @@ import process
 import amazon_scraper
 import ebay_scraper
 import walmart_scraper
+import bestbuy_scraper
 import pyqtspinner
 
 
@@ -111,7 +112,7 @@ class Ui_MainWindow(object):
         self.pushButton.setEnabled(False)
         self.tableLayout.addWidget(self.loadingLabel)
         self.loadingLabel.setVisible(True)
-        self.loadingLabel.setText("Installing Playwright browsers on your device...")
+        self.loadingLabel.setText("Setting up Playwright...")
         self.playwrightInstallThread = QtCore.QThread()
         self.playwrightInstallWorker = PlaywrightInstallWorker()
         self.playwrightInstallWorker.moveToThread(self.playwrightInstallThread)
@@ -200,6 +201,8 @@ class ScraperWorker(QtCore.QObject):
         self.products += ebay_scraper.run(query, page)
         self.processChanged.emit("Scraping Walmart...")
         self.products += walmart_scraper.run(query, page)
+        self.processChanged.emit("Scraping Best Buy...")
+        self.products += bestbuy_scraper.run(query, page)
         self.products = process.process_data(self.products, self.query_words)
         return
 
