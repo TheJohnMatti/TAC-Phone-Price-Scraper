@@ -1,25 +1,20 @@
 import numpy as np
 import product
 
-## Data processing methods
+## Data processing function
+
 
 def process_data(products, words):
+    # Nothing to process
     if products == []:
         return products
-    products = list(filter(lambda x: isinstance(x.price, float), products)) # remove non-float prices (faulty data)
+    # Remove non-float prices (faulty data) before calculating average
+    products = list(filter(lambda x: isinstance(x.price, float), products))
+    # Remove suspiciously cheap products (likely accessories)
     average_price = np.average([x.price for x in products])
-    products = list(filter(lambda x: (x.price >= average_price/4), products)) # remove suspiciously cheap products (likely phone cases or other accessories)
+    products = list(filter(lambda x: (x.price >= average_price/4), products))
+    for word in words:
+        # Ensure correct device
+        # E.g, filter out Iphone 13 for an Iphone 12 scrape as searches often yield similar devices
+        products = list(filter(lambda x: word.lower() in x.name.lower(), products))
     return products
-
-
-
-# def main():
-#     product1 = product.product()
-#     product1.price = 100.0
-#     product1.name = "product1"
-#     product2 = product.product()
-#     product2.price = 1000.0
-#     product2.name = "product2"
-
-# if __name__ == "__main__":
-#     main()

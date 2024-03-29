@@ -1,21 +1,19 @@
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
-from bs4 import BeautifulSoup as bs
 import product
 
 ## Scraper specialized for eBay
-
 
 # Obtain array of products and find properties within
 
 def get_product_list(page):
     html = HTMLParser(page.content())
-    products = html.css('[class="s-item__wrapper clearfix"]')
+    products = html.css('[class="s-item__wrapper clearfix"]')  # Get product parent node
     product_list = []
     for index, item in enumerate(products):
         product_list.append(product.product())
         product_list[index].website = "Ebay.ca"
-        if item.css_matches('[class="s-item__title"]'):
+        if item.css_matches('[class="s-item__title"]'):  # Safety check to prevent errors
             product_list[index].name = item.css_first('[class="s-item__title"]').text(deep=True, separator=" ", strip=True)
         if (item.css_matches('[class="s-item__subtitle"]')):
             product_list[index].cond = item.css('[class="s-item__subtitle"]')[-1].text(deep=True, separator="", strip=True)
@@ -61,12 +59,3 @@ def run(query, page):
     return get_product_list(page)
 
 
-def main():
-    pw = sync_playwright().start()
-    browser = pw.chromium.launch()
-    page = browser.new_page()
-    run("0", page)
-
-
-if __name__ == "__main__":
-    main()

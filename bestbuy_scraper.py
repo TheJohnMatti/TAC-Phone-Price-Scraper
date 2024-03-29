@@ -1,7 +1,6 @@
 import playwright.sync_api
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
-from bs4 import BeautifulSoup as bs
 import product
 
 ## Scraper specialized for Best Buy
@@ -10,13 +9,13 @@ import product
 
 def get_product_list(page):
     html = HTMLParser(page.content())
-    products = html.css('[itemtype="http://schema.org/Product"]')
+    products = html.css('[itemtype="http://schema.org/Product"]')  # Get product parent node
     product_list = []
     for index, item in enumerate(products):
         product_list.append(product.product())
         product_list[index].website = "BestBuy.ca"
         product_list[index].link = "https://www.bestbuy.ca/" + item.parent.attrs['href']
-        if item.css_matches('[data-automation="productItemName"]'):
+        if item.css_matches('[data-automation="productItemName"]'):  # Safety check to prevent errors
             product_list[index].name = item.css_first('[data-automation="productItemName"]').text(deep=False, strip=True)
             if "Open Box" in product_list[index].name:
                 product_list[index].cond = "Open Box"
@@ -48,5 +47,4 @@ def run(query, page: playwright.sync_api.Page):
     search = "https://www.bestbuy.ca/en-ca/search?search=" + query
     page.goto(search)
     page.get_by_role('button', name = "Show more").click()
-    page.get_by_role('button', name= "Show more").click()
     return get_product_list(page)

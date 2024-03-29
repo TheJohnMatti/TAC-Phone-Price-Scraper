@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import webbrowser
 
+#  Custom table widget for displaying data
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -13,7 +14,7 @@ class Ui_Form(object):
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(8)
         self.tableWidget.setRowCount(0)
-        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.setSortingEnabled(False)   # Disable table sorting without data to prevent corruption bug
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -36,11 +37,11 @@ class Ui_Form(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
         self.tableWidget.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.Stretch)
         self.tableWidget.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.Stretch)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeToContents)
         self.tableWidget.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.Stretch)
-        self.tableWidget.itemClicked.connect(self.open_link)
+        self.tableWidget.itemClicked.connect(self.open_link)  # Opening website and product links
 
-        self.linkQueue = True
+        self.linkQueue = True  # Link wait time of 0.5 s used to prevent bug where website opens dozens of times
         self.counter = QtCore.QTimer(Form)
         self.counter.setInterval(500)
         self.counter.timeout.connect(self.reset_timer)
@@ -68,6 +69,7 @@ class Ui_Form(object):
         item = self.tableWidget.horizontalHeaderItem(7)
         item.setText(_translate("Form", "Link"))
 
+    # Called at the end of successful scrape threads to update all cells in the table
     def update_table(self, products):
         self.products = products
         self.tableWidget.setRowCount(len(products))
@@ -110,25 +112,31 @@ class Ui_Form(object):
             table_item.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
             self.tableWidget.setItem(index, 7, table_item)
 
+    # Getter used for outside access to the table widget
     def get_table(self):
         return self.tableWidget
 
+    # Remove all non-label components
     def delete_table(self):
         self.tableWidget.setRowCount(0)
 
+    # Only allow for websites and products
     def open_link(self, item : QtWidgets.QTableWidgetItem):
         if (item.column() == 7 or item.column() == 0) and item.text() != "" and self.linkQueue == True:
             self.linkQueue = False
             self.counter.start()
             webbrowser.open(item.text())
 
+    # Used for outside access to "setSortingEnabled(bool)" method
     def toggle_sorting(self, toggle: bool):
         self.tableWidget.setSortingEnabled(toggle)
 
+    # re-toggling link clicks
     def reset_timer(self):
         self.counter.stop()
         self.linkQueue = True
 
+# Not used
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

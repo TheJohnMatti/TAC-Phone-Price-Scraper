@@ -1,6 +1,5 @@
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
-from bs4 import BeautifulSoup as bs
 import product
 
 ## Scraper specialized for Walmart
@@ -9,14 +8,14 @@ import product
 
 def get_product_list(page):
     html = HTMLParser(page.content())
-    products = html.css('[data-item-id]')
+    products = html.css('[data-item-id]')  # Get product parent node
     product_list = []
     for index, item in enumerate(products):
         product_list.append(product.product())
         product_list[index].website = "Walmart.ca"
         product_list[index].seller = "Walmart"
         product_list[index].link = "https://www.walmart.ca" + item.child.attrs['href']
-        if item.css_matches('[class="w_q67L"]'):
+        if item.css_matches('[class="w_q67L"]'):  # Safety check to prevent errors
             product_list[index].name = item.css_first('[class="w_q67L"]').text(deep=False, strip=True)
             if "Condition" in product_list[index].name or "Grade" in product_list[index].name:
                 words = product_list[index].name.split(" ")

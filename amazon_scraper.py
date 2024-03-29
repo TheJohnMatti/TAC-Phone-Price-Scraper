@@ -1,6 +1,5 @@
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
-from bs4 import BeautifulSoup as bs
 import product
 
 ## Scraper specialized for Amazon
@@ -9,13 +8,13 @@ import product
 
 def get_product_list(page):
     html = HTMLParser(page.content())
-    products = html.css('[data-component-type="s-search-result"]')
+    products = html.css('[data-component-type="s-search-result"]')  # Get product parent node
     product_list = []
     for index, item in enumerate(products):
         product_list.append(product.product())
         product_list[index].website = "Amazon.ca"
         product_list[index].link = "https://www.amazon.ca/dp/" + item.attrs['data-asin']
-        if item.css_matches('[data-cy="title-recipe"]'):
+        if item.css_matches('[data-cy="title-recipe"]'):  # Safety check to prevent errors
             product_list[index].name = item.css_first('[class="a-size-base-plus a-color-base a-text-normal"]').text(deep=False, strip=True)
             product_list[index].used = "(Renewed)" in product_list[index].name
         if item.css_matches('[class="a-price"]'):
