@@ -18,4 +18,4 @@ Data is processed to ensure each product contains all product name words in its 
 # Running
 Simply run gui.exe in the dist folder if on Windows. On Linux or Mac, installing the requirements and running gui.py should work.
 <b>Note: </b>Playwright's Firefox browser must be installed on your computer to use this application. You can run ````py -m playwright install```` after running ````pip install playwright````. Alternatively, if you run the app, it will try to install the browsers
-for you automatically; however, this method seems to take much, much longer to install.
+for you automatically.
