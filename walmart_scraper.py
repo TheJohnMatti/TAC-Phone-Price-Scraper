@@ -35,12 +35,6 @@ def get_product_list(page):
         if item.css_matches('[data-testid="product-ratings"]'):
             product_list[index].rating = float(item.css_first('[data-testid="product-ratings"]').attrs['data-value'])
 
-    for item in product_list:
-        print("Name: ", item.name)
-        print("Price: ", item.price)
-        print("Rating: ", item.rating)
-        print("Used: ", item.used)
-
     return product_list
 
 # Go to page and obtain info

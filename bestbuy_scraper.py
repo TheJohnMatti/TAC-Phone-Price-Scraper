@@ -34,11 +34,6 @@ def get_product_list(page):
         else:
             product_list[index].seller = "Best Buy"
 
-    for item in product_list:
-        print("Name: ", item.name)
-        print("Price: ", item.price)
-        print("Rating: ", item.rating)
-        print("Used: ", item.used)
     return product_list
 
 # Go to page and obtain info

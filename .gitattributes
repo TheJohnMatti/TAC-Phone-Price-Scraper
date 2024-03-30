@@ -1,0 +1,2 @@
+/dist/gui.exe filter=lfs diff=lfs merge=lfs -text
+/build/gui/gui.pkg filter=lfs diff=lfs merge=lfs -text

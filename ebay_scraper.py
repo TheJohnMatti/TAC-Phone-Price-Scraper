@@ -37,17 +37,6 @@ def get_product_list(page):
         if(item.css_matches('[class="s-item__link"]')):
             product_list[index].link = item.css_first('[class="s-item__link"]').attrs['href']
 
-
-
-
-    for item in product_list:
-        print("Name: ", item.name)
-        print("Price: ", item.price)
-        print("Rating: ", item.rating)
-        print("Used: ", item.used)
-        print("Condition: ", item.cond)
-        print("Seller: ", item.seller)
-
     return product_list
 
 

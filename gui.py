@@ -253,7 +253,7 @@ class PlaywrightInstallWorker(QtCore.QObject):
 
     # Run to install browsers if not present. Takes long so it is asynchronous to prevent frozen GUI
     def run(self):
-        os.system("py -m playwright install")
+        os.system(".\\Scripts\\playwright.exe install")
         self.finished.emit()
 
 # Main script that initializes GUI

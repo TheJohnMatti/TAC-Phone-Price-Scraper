@@ -26,12 +26,6 @@ def get_product_list(page):
         # No ratings available on Canada Computers
         product_list[index].seller = "Canada Computers"
 
-    for item in product_list:
-        print("Website: ", item.website)
-        print("Name: ", item.name)
-        print("Price: ", item.price)
-        print("Rating: ", item.rating)
-        print("Used: ", item.used)
     return product_list
 
 # Go to page and obtain info
