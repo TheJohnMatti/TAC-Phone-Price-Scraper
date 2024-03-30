@@ -7,7 +7,7 @@ a PyQt GUI application. As IMEI checker API's are much more common then TAC chec
 
 # Tac Mapper
 Using Luhn's algorithm (source: https://sndeep.info/en/tools/checksum_calculator), we can calculate the last digit of the IMEI, known as the checksum. Therefore, by appending the same 6 digits to the TAC, then calculating the checksum, we can always obtain a valid
-IMEI and use an IMEI checker to obtain the common phone name. THe IMEI checker api used in this application is: https://alpha.imeicheck.com/api
+IMEI and use an IMEI checker to obtain the common phone name. The IMEI checker api used in this application is: https://alpha.imeicheck.com/api
 
 # Web Scraper
 Scrapes data from Amazon, Ebay, Bestbuy, Canada Computers and Walmart. Finds prices, names, conditions, sellers, and product links. Uses playwright to access pages and selectolax to parse HTML.
