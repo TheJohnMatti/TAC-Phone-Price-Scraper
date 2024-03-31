@@ -99,7 +99,7 @@ class Ui_Form(object):
             table_item.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
             self.tableWidget.setItem(index, 4, table_item)
             table_item = QtWidgets.QTableWidgetItem()
-            table_item.setText(value.cond)
+            table_item.setText(value.cond if value.used else "New")
             table_item.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
             self.tableWidget.setItem(index, 5, table_item)
             table_item = QtWidgets.QTableWidgetItem()

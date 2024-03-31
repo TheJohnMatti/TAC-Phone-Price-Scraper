@@ -65,7 +65,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Tac Phone Price Scraper"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "TAC Phone Price Scraper"))
         self.pushButton.setText(_translate("MainWindow", "Enter"))
         self.pushButton.setShortcut(_translate("MainWindow", "Return"))
 
