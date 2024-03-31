@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import webbrowser
+import pyperclip
 
 #  Custom table widget for displaying data
 
@@ -39,7 +40,8 @@ class Ui_Form(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
         self.tableWidget.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeToContents)
         self.tableWidget.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.Stretch)
-        self.tableWidget.itemClicked.connect(self.open_link)  # Opening website and product links
+        self.tableWidget.itemDoubleClicked.connect(self.open_link)  # Opening website and product links
+        self.tableWidget.itemClicked.connect(self.copy_link)
 
         self.linkQueue = True  # Link wait time of 0.5 s used to prevent bug where website opens dozens of times
         self.counter = QtCore.QTimer(Form)
@@ -120,12 +122,15 @@ class Ui_Form(object):
     def delete_table(self):
         self.tableWidget.setRowCount(0)
 
-    # Only allow for websites and products
+    # Only allow opening and copying for websites and products
     def open_link(self, item : QtWidgets.QTableWidgetItem):
         if (item.column() == 7 or item.column() == 0) and item.text() != "" and self.linkQueue == True:
             self.linkQueue = False
             self.counter.start()
             webbrowser.open(item.text())
+
+    def copy_link(self,  item: QtWidgets.QTableWidgetItem):
+        pyperclip.copy(item.text())
 
     # Used for outside access to "setSortingEnabled(bool)" method
     def toggle_sorting(self, toggle: bool):
