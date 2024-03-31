@@ -10,12 +10,13 @@ Using Luhn's algorithm (source: https://sndeep.info/en/tools/checksum_calculator
 IMEI and use an IMEI checker to obtain the common phone name. The IMEI checker api used in this application is: https://alpha.imeicheck.com/api
 
 # Web Scraper
-Scrapes data from Amazon, Ebay, Bestbuy, Canada Computers and Walmart. Finds prices, names, conditions, sellers, and product links. Uses playwright to access pages and selectolax to parse HTML.
-
-# Processing
-Data is processed to ensure each product contains all product name words in its title. Overly cheap products are filtered out since they are likely to be accessories.
+Scrapes data from Amazon, Ebay, Bestbuy, Canada Computers and Walmart. Finds prices, names, conditions, sellers, and product links. Uses playwright to access pages and selectolax to parse HTML. Data is processed to remove bad products.
 
 # Running
-Simply run gui.exe in the dist folder if on Windows. On Linux or Mac, installing the requirements and running gui.py should work.
+Simply run gui.exe in the dist folder if on Windows. On Linux or Mac, installing the requirements and running gui.py should work. <br>
 <b>Note: </b>Playwright's Firefox browser must be installed on your computer to use this application. You can run ````py -m playwright install```` after running ````pip install playwright````. Alternatively, if you run the app, it will try to install the browsers
 for you automatically.
+
+# How to Use
+Simply input a TAC and wait for the scraper to complete. Once the data is collected, you may order it by clicking the column headers. Single clicks on any cell copies the text to your clipboard, and double clicks on link cells open the link in your browser.  
+
