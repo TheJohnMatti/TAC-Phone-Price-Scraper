@@ -13,7 +13,7 @@ IMEI and use an IMEI checker to obtain the common phone name. The IMEI checker a
 Scrapes data from Amazon, Ebay, Bestbuy, Canada Computers and Walmart. Finds prices, names, conditions, sellers, and product links. Uses playwright to access pages and selectolax to parse HTML. Data is processed to remove bad products.
 
 # Running
-Simply run gui.exe in the dist folder if on Windows. On Linux or Mac, installing the requirements and running gui.py should work. <br>
+Simply run gui.exe in the dist folder if on Windows. On Linux or Mac, simply install the requirements and run gui.py. <br>
 <b>Note: </b>Playwright's Firefox browser must be installed on your computer to use this application. You can run ````py -m playwright install```` after running ````pip install playwright````. Alternatively, if you run the app, it will try to install the browsers
 for you automatically.
 
